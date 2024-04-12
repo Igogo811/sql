@@ -1,0 +1,60 @@
+import sqlite3
+
+conn = sqlite3.connect('students.db')
+cursor = conn.cursor()
+
+cursor.execute('CREATE TABLE IF NOT EXISTS students(id INTEGER PRIMARY KEY AUTOINCREMENT, name STR, age INT);')
+conn.commit()
+cursor.execute('CREATE TABLE IF NOT EXISTS grades(id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INT,'
+               ' subject STR, grade FLOAT);')
+conn.commit()
+
+class University:
+
+    def __init__(self, name):
+        self.name = name
+
+    def add_student(self, name, age):
+        self.name = name
+        self.age = age
+        cursor.execute(f'INSERT INTO students(name, age) VALUES ("{self.name}", "{self.age}");')
+        conn.commit()
+
+    def add_grade(self, student_id, subject, grade):
+        self.student_id = student_id
+        self.subject = subject
+        self.grade = grade
+        cursor.execute(f'INSERT INTO grades(student_id, subject, grade) '
+                       f'VALUES ("{self.student_id}", "{self.subject}", "{self.grade}");')
+        conn.commit()
+
+    def get_students(self, subject=None):
+        self.subject = subject
+        cursor.execute(f'SELECT t1.name, t2.subject, t2.grade FROM students t1 '
+                       f'JOIN grades t2 ON t1.id = t2.student_id ')
+        results_1 = cursor.fetchall()
+        cursor.execute(f'SELECT t1.name, t2.subject, t2.grade FROM students t1 '
+                       f'JOIN grades t2 ON t1.id = t2.student_id WHERE subject LIKE "{self.subject}"')
+        results = cursor.fetchall()
+        print(f'Список студентов: {results_1}')
+        print(f'Список студентов: {results}')
+        conn.commit()
+
+
+u1 = University('Urban')
+
+u1.add_student('Ivan', 26) # id - 1
+u1.add_student('Ilya', 24) # id - 2
+u1.add_student('Egor', 28) # id - 3
+u1.add_student('Sergej', 34) # id - 4
+
+
+u1.add_grade(1, 'Python', 4.8)
+u1.add_grade(2, 'PHP', 4.3)
+u1.add_grade(3, 'C++', 4.6)
+u1.add_grade(4, 'Python', 4.9)
+
+u1.get_students()
+u1.get_students('Python')
+
+conn.close()
